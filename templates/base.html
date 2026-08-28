@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}{{ store.name }} | Mobile Parts A to Z{% endblock %}</title>
+<meta name="description" content="{{ store.name }} — genuine mobile phone spare parts and repairing, Najafgarh. Displays, batteries, charging ports, camera modules, speakers, motherboard parts and more.">
+<link rel="icon" href="{{ url_for('static', filename='images/logo.jpeg') }}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="topbar-ticker">
+      <span class="topbar-ticker-track">
+        <span>{{ store.hours_main }} &nbsp;&middot;&nbsp; {{ store.hours_note }} &nbsp;&middot;&nbsp; Call: {{ store.phone }}</span>
+        <span>{{ store.hours_main }} &nbsp;&middot;&nbsp; {{ store.hours_note }} &nbsp;&middot;&nbsp; Call: {{ store.phone }}</span>
+      </span>
+    </div>
+    <a href="tel:{{ store.phone }}" class="topbar-phone">{{ store.phone }}</a>
+  </div>
+</div>
+
+<header class="site-header">
+  <div class="header-inner">
+    <a href="{{ url_for('index') }}" class="brand">
+      <img src="{{ url_for('static', filename='images/logo.jpeg') }}" alt="{{ store.name }} logo" class="brand-logo">
+      <span class="brand-text">
+        <span class="brand-name">ALAM<span class="accent">TELECOM</span></span>
+        <span class="brand-tagline">{{ store.tagline }}</span>
+      </span>
+    </a>
+
+    <nav class="site-nav">
+      <a href="{{ url_for('index') }}" class="{{ 'active' if active_page == 'home' else '' }}">Home</a>
+      <a href="{{ url_for('prices') }}" class="{{ 'active' if active_page == 'prices' else '' }}">Parts Price</a>
+      <a href="{{ url_for('contact') }}" class="{{ 'active' if active_page == 'contact' else '' }}">Contact</a>
+    </nav>
+
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<main>
+{% block content %}{% endblock %}
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-col">
+      <div class="brand-name small">ALAM<span class="accent">TELECOM</span></div>
+      <p>{{ store.experience_years }} years of experience in mobile spare parts and repairing, for every major brand.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Visit Us</h4>
+      <p>{{ store.address_line1 }}</p>
+      <p>{{ store.address_line2 }}</p>
+      <p><a href="tel:{{ store.phone }}">{{ store.phone }}</a></p>
+    </div>
+    <div class="footer-col">
+      <h4>Store Hours</h4>
+      <p>{{ store.hours_main }}</p>
+      <p>{{ store.hours_note }}</p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>&copy; <span id="year"></span> {{ store.name }}. All rights reserved.</span>
+  </div>
+</footer>
+
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

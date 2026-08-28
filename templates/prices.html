@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Parts Price | {{ store.name }}{% endblock %}
+{% block content %}
+
+<section class="page-hero reveal">
+  <div class="section-inner">
+    <span class="eyebrow">Price List</span>
+    <h1>Parts Price</h1>
+    <p>Pick a part category, then pick the brand to view its price list (opens as a PDF).</p>
+  </div>
+</section>
+
+<section class="section reveal">
+  <div class="section-inner">
+    <div class="price-grid">
+      {% for cat in price_categories %}
+      <a class="price-card" href="{{ url_for('price_category', slug=cat.slug) }}">
+        <div class="category-icon icon-{{ cat.icon }}"></div>
+        <span class="price-card-name">{{ cat.name }}</span>
+        <span class="price-card-hint">Choose Brand</span>
+      </a>
+      {% endfor %}
+    </div>
+    <p class="brand-note">More categories will be added here over time.</p>
+  </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}{{ category.name }} Price | {{ store.name }}{% endblock %}
+{% block content %}
+
+<section class="page-hero reveal">
+  <div class="section-inner">
+    <span class="eyebrow">Price List &rsaquo; {{ category.name }}</span>
+    <h1>{{ category.name }} Prices</h1>
+    <p>Pick a brand to open its {{ category.name.lower() }} price list (PDF).</p>
+    <a class="back-link" href="{{ url_for('prices') }}">&larr; All Categories</a>
+  </div>
+</section>
+
+<section class="section reveal">
+  <div class="section-inner">
+    <div class="price-grid">
+      {% for group in brand_groups %}
+      <a class="price-card brand-price-card"
+         href="{{ url_for('static', filename='pdfs/' + category.slug + '/' + group.slug + '.pdf') }}"
+         target="_blank" rel="noopener">
+        <div class="brand-group-logos">
+          {% for logo in group.logos %}
+          <img src="{{ url_for('static', filename='images/brands/' + logo + '.png') }}" alt="{{ logo }}">
+          {% endfor %}
+        </div>
+        <span class="price-card-name">{{ group.name }}</span>
+        <span class="price-card-hint">View PDF</span>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{% endblock %}

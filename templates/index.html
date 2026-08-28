@@ -1,1 +1,149 @@
+{% extends "base.html" %}
+{% block content %}
 
+<section class="hero reveal">
+  <div class="hero-inner">
+    <div class="hero-text">
+      <span class="eyebrow">Mobile Spare Parts & Repairing Shop</span>
+      <h1>Every Part.<br>Every Brand.<br><span class="accent">A to Z.</span></h1>
+      <p class="hero-lead">
+        {{ store.name }} has been serving customers in Najafgarh for
+        {{ store.experience_years }} years. We stock genuine displays,
+        batteries, charging ports, camera modules, speakers and
+        motherboard-level parts for all major phone brands, and we also
+        carry out mobile repairing in-house.
+      </p>
+      <div class="hero-facts">
+        <div class="hero-fact">
+          <span class="hero-fact-num">{{ store.experience_years }}+</span>
+          <span class="hero-fact-label">Years in Najafgarh</span>
+        </div>
+        <div class="hero-fact">
+          <span class="hero-fact-num">A–Z</span>
+          <span class="hero-fact-label">Parts, All Brands</span>
+        </div>
+        <div class="hero-fact">
+          <span class="hero-fact-num">Parts + Repair</span>
+          <span class="hero-fact-label">Both Under One Roof</span>
+        </div>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <img src="{{ url_for('static', filename='images/logo.jpeg') }}" alt="{{ store.name }} logo" class="hero-logo">
+    </div>
+  </div>
+</section>
+
+<!-- Site-type identity strip: states plainly what this shop / website is -->
+<section class="identity-strip reveal">
+  <div class="identity-inner">
+    <div class="identity-item">
+      <span class="identity-label">What this is</span>
+      <span class="identity-value">Mobile parts & repair shop</span>
+    </div>
+    <div class="identity-item">
+      <span class="identity-label">What we do</span>
+      <span class="identity-value">Sell parts, repair phones</span>
+    </div>
+    <div class="identity-item">
+      <span class="identity-label">Experience</span>
+      <span class="identity-value">{{ store.experience_years }} years</span>
+    </div>
+    <div class="identity-item">
+      <span class="identity-label">Location</span>
+      <span class="identity-value">Najafgarh, New Delhi</span>
+    </div>
+  </div>
+</section>
+
+<section class="section services reveal">
+  <div class="section-inner">
+    <span class="eyebrow">What We Do</span>
+    <h2>Our services</h2>
+    <div class="service-grid">
+      {% for s in services %}
+      <div class="service-card">
+        <h3>{{ s.name }}</h3>
+        <p>{{ s.desc }}</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="section categories reveal">
+  <div class="section-inner">
+    <span class="eyebrow">Product Range</span>
+    <h2>Parts we stock</h2>
+    <div class="category-grid">
+      {% for cat in categories %}
+      <div class="category-card">
+        <div class="category-icon icon-{{ cat.icon }}"></div>
+        <span>{{ cat.name }}</span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="section brands reveal">
+  <div class="section-inner">
+    <span class="eyebrow">Brands We Cover</span>
+    <h2>Parts available for</h2>
+  </div>
+  <div class="brand-marquee">
+    <div class="brand-track">
+      {% for brand in brands %}
+      <span class="brand-logo-chip">
+        <img src="{{ url_for('static', filename='images/brands/' + brand.lower().replace('+','plus') + '.png') }}"
+             alt="{{ brand }}" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
+        <span class="brand-fallback" style="display:none;">{{ brand }}</span>
+      </span>
+      {% endfor %}
+      {% for brand in brands %}
+      <span class="brand-logo-chip" aria-hidden="true">
+        <img src="{{ url_for('static', filename='images/brands/' + brand.lower().replace('+','plus') + '.png') }}"
+             alt="" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
+        <span class="brand-fallback" style="display:none;">{{ brand }}</span>
+      </span>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="section-inner">
+    <p class="brand-note">We work with all major phone brands — the strip above covers the most common ones customers ask for.</p>
+  </div>
+</section>
+
+<section class="section why reveal">
+  <div class="section-inner why-grid">
+    <div class="why-card">
+      <span class="why-num">01</span>
+      <h3>{{ store.experience_years }} Years of Trust</h3>
+      <p>Serving repair shops, technicians and customers in Najafgarh since we started this shop.</p>
+    </div>
+    <div class="why-card">
+      <span class="why-num">02</span>
+      <h3>Parts + Repairing</h3>
+      <p>Not just a parts counter — our technicians repair phones on-site, for every major brand.</p>
+    </div>
+    <div class="why-card">
+      <span class="why-num">03</span>
+      <h3>All Brands, One Shop</h3>
+      <p>From Samsung to iPhone to Chinese brands — one stop for every model you need parts or repair for.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section visit-band reveal">
+  <div class="section-inner visit-inner">
+    <div>
+      <span class="eyebrow">Visit The Shop</span>
+      <h2>Find us in Najafgarh</h2>
+      <p>{{ store.address_line1 }}, {{ store.address_line2 }}</p>
+      <p>{{ store.hours_main }} &middot; {{ store.hours_note }}</p>
+      <p>Phone: <a href="tel:{{ store.phone }}">{{ store.phone }}</a></p>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Contact | {{ store.name }}{% endblock %}
+{% block content %}
+
+<section class="page-hero reveal">
+  <div class="section-inner">
+    <span class="eyebrow">Visit or Call</span>
+    <h1>Contact {{ store.name }}</h1>
+    <p>Here's how to reach the shop.</p>
+  </div>
+</section>
+
+<section class="section contact-section reveal">
+  <div class="section-inner">
+    <div class="contact-details contact-details-full">
+      <div class="detail-card">
+        <span class="detail-label">Address</span>
+        <p>{{ store.address_line1 }}</p>
+        <p>{{ store.address_line2 }}</p>
+      </div>
+      <div class="detail-card">
+        <span class="detail-label">Phone</span>
+        <p><a href="tel:{{ store.phone }}">{{ store.phone }}</a></p>
+      </div>
+      <div class="detail-card">
+        <span class="detail-label">Store Hours</span>
+        <p>{{ store.hours_main }}</p>
+        <p>{{ store.hours_note }}</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section map-section reveal">
+  <div class="section-inner">
+    <div class="map-placeholder">
+      <span>Store location map goes here</span>
+      <small>Replace with an embedded Google Map iframe using the shop's address.</small>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
