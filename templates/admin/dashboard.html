@@ -1,0 +1,36 @@
+{% extends "admin/_base_admin.html" %}
+{% block title %}Dashboard | Alam Telecom Admin{% endblock %}
+{% block content %}
+<div class="admin-card admin-card-wide">
+  <h1>Price PDF Manager</h1>
+  <p class="admin-sub">Upload a PDF for any brand. Uploading a new one automatically deletes and replaces the old one.</p>
+
+  {% for row in grid %}
+  <h2 class="admin-cat-heading">{{ row.category.name }}</h2>
+  <div class="admin-grid">
+    {% for item in row.brands %}
+    <div class="admin-pdf-card">
+      <div class="admin-pdf-info">
+        <span class="admin-pdf-name">{{ item.group.name }}</span>
+        {% if item.exists %}
+          <span class="admin-status admin-status-ok">PDF uploaded</span>
+          <a href="{{ item.url }}" target="_blank" rel="noopener" class="admin-view-link">View current PDF</a>
+        {% else %}
+          <span class="admin-status admin-status-missing">No PDF yet</span>
+        {% endif %}
+      </div>
+      <form method="POST"
+            action="{{ url_for('admin.upload_pdf', category_slug=row.category.slug, brand_slug=item.group.slug) }}"
+            enctype="multipart/form-data"
+            class="admin-upload-form">
+        <input type="file" name="pdf_file" accept="application/pdf" required>
+        <button type="submit" class="btn btn-primary">
+          {{ "Replace PDF" if item.exists else "Upload PDF" }}
+        </button>
+      </form>
+    </div>
+    {% endfor %}
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends "admin/_base_admin.html" %}
+{% block title %}Admin Setup | Alam Telecom{% endblock %}
+{% block content %}
+<div class="admin-card">
+  <h1>Create Admin Account</h1>
+  <p class="admin-sub">This runs once. This email + password will be used to log in and manage price PDFs.</p>
+  <form method="POST" class="admin-form">
+    <label>Email
+      <input type="email" name="email" required placeholder="you@example.com">
+    </label>
+    <label>Password
+      <input type="password" name="password" required minlength="6">
+    </label>
+    <label>Confirm Password
+      <input type="password" name="confirm" required minlength="6">
+    </label>
+    <button type="submit" class="btn btn-primary">Create Account</button>
+  </form>
+</div>
+{% endblock %}

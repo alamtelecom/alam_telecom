@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}Admin | Alam Telecom{% endblock %}</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+</head>
+<body class="admin-body">
+<div class="admin-shell">
+  <div class="admin-topbar">
+    <span class="admin-brand">ALAM<span class="accent">TELECOM</span> <span class="admin-tag">Admin</span></span>
+    {% if session.get('admin_logged_in') %}
+    <nav class="admin-nav">
+      <a href="{{ url_for('admin.dashboard') }}">Dashboard</a>
+      <a href="{{ url_for('admin.change_password') }}">Change Password</a>
+      <a href="{{ url_for('admin.logout') }}">Logout</a>
+    </nav>
+    {% endif %}
+  </div>
+
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <div class="admin-flash">
+      {% for m in messages %}<p>{{ m }}</p>{% endfor %}
+    </div>
+    {% endif %}
+  {% endwith %}
+
+  <div class="admin-content">
+    {% block content %}{% endblock %}
+  </div>
+</div>
+</body>
+</html>
