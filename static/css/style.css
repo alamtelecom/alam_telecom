@@ -471,20 +471,23 @@ p { color: var(--gray); margin: 0 0 1em; }
 .detail-card p { margin: 6px 0 0; color: var(--white); }
 
 .map-section { padding-top: 0; }
-.map-placeholder {
-  border: 1px dashed var(--border);
+.map-embed {
+  border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 60px 24px;
-  text-align: center;
-  color: var(--gray-dim);
+  overflow: hidden;
+  filter: grayscale(0.15) contrast(1.05);
 }
-.map-placeholder span {
-  display: block;
+.map-embed iframe { display: block; }
+.map-directions-link {
+  display: inline-block;
+  margin-top: 14px;
   font-family: var(--font-display);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 6px;
-  color: var(--gray);
+  font-weight: 600;
+  font-size: 0.9rem;
+  letter-spacing: 0.03em;
+  color: var(--orange);
+  border-bottom: 1px solid var(--orange);
+  padding-bottom: 2px;
 }
 
 /* ==========================================================================
