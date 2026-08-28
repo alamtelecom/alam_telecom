@@ -1,0 +1,10 @@
+# Admin credentials & session key - never commit these
+instance/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Uploaded PDFs stay local / uploaded via admin panel on the live site,
+# not tracked in git
+static/pdfs/*/*.pdf
