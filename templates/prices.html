@@ -14,11 +14,19 @@
   <div class="section-inner">
     <div class="price-grid">
       {% for cat in price_categories %}
+      {% if cat.slug == 'battery' %}
+      <div class="price-card price-card-disabled">
+        <div class="category-icon icon-{{ cat.icon }}"></div>
+        <span class="price-card-name">{{ cat.name }}</span>
+        <span class="price-card-hint price-card-soon">Coming Soon</span>
+      </div>
+      {% else %}
       <a class="price-card" href="{{ url_for('price_category', slug=cat.slug) }}">
         <div class="category-icon icon-{{ cat.icon }}"></div>
         <span class="price-card-name">{{ cat.name }}</span>
         <span class="price-card-hint">Choose Brand</span>
       </a>
+      {% endif %}
       {% endfor %}
     </div>
     <p class="brand-note">More categories will be added here over time.</p>
