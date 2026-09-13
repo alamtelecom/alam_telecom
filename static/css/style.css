@@ -778,7 +778,13 @@ p { color: var(--gray); margin: 0 0 1em; }
   animation: whatsapp-pop 0.4s ease 0.6s both;
 }
 .whatsapp-float:hover { transform: scale(1.08); }
-.whatsapp-float svg { width: 28px; height: 28px; color: #ffffff; }
+.whatsapp-float svg {
+  width: 28px;
+  height: 28px;
+  color: #ffffff;
+  flex-shrink: 0;
+  display: block;
+}
 
 @keyframes whatsapp-pop {
   from { transform: scale(0); opacity: 0; }
@@ -792,4 +798,111 @@ p { color: var(--gray); margin: 0 0 1em; }
     width: 52px;
     height: 52px;
   }
+}
+
+/* ==========================================================================
+   Language toggle (EN / हिंदी) — sits in the topbar next to the phone number
+   ========================================================================== */
+.lang-toggle {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  margin-left: 4px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 1px solid #100900;
+  background: #100900;
+  color: var(--orange);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+.lang-toggle:hover { background: rgba(16,9,0,0.82); transform: translateY(-1px); }
+
+@media (max-width: 720px) {
+  .lang-toggle { padding: 4px 10px; }
+}
+
+/* ==========================================================================
+   Partners / collaboration section
+   ========================================================================== */
+.partners { background: var(--bg); }
+.partner-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  margin-top: 28px;
+}
+.partner-card {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+.partner-card:hover { border-color: var(--orange); transform: translateY(-3px); }
+.partner-logo-wrap {
+  flex-shrink: 0;
+  width: 96px;
+  height: 96px;
+  border-radius: var(--radius);
+  background: var(--bg-panel-2);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+}
+.partner-logo-wrap img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.partner-info { display: flex; flex-direction: column; gap: 8px; }
+.partner-name-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.partner-name {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: var(--white);
+  letter-spacing: 0.03em;
+}
+.partner-badge {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #100900;
+  background: linear-gradient(135deg, var(--orange), var(--orange-light));
+  padding: 3px 10px;
+  border-radius: 999px;
+}
+.partner-desc { font-size: 0.88rem; margin: 0; }
+.partner-tags {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 2px;
+}
+.partner-tag {
+  font-size: 0.72rem;
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: var(--gray);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 3px 12px;
+}
+
+@media (max-width: 500px) {
+  .partner-card { flex-direction: column; align-items: flex-start; text-align: left; }
 }
