@@ -134,7 +134,7 @@ p { color: var(--gray); margin: 0 0 1em; }
   border-bottom: 1px solid var(--border);
   position: sticky;
   top: 0;
-  z-index: 50;
+  z-index: 80;
   backdrop-filter: blur(6px);
 }
 .header-inner {
@@ -170,8 +170,18 @@ p { color: var(--gray); margin: 0 0 1em; }
   text-transform: uppercase;
 }
 
-.site-nav { display: flex; align-items: center; gap: 28px; }
+.site-nav { display: flex; align-items: center; }
+.site-nav-head { display: none; }
+.site-nav-list {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
 .site-nav a {
+  display: block;
   font-family: var(--font-display);
   font-weight: 600;
   letter-spacing: 0.03em;
@@ -183,14 +193,6 @@ p { color: var(--gray); margin: 0 0 1em; }
   transition: color 0.2s ease, border-color 0.2s ease;
 }
 .site-nav a:hover, .site-nav a.active { color: var(--white); border-color: var(--orange); }
-.site-nav a.nav-cta {
-  background: var(--orange);
-  color: #100900;
-  padding: 9px 18px;
-  border-radius: var(--radius);
-  border-bottom: none;
-}
-.site-nav a.nav-cta:hover { color: #100900; filter: brightness(1.08); }
 
 .nav-toggle {
   display: none;
@@ -204,6 +206,19 @@ p { color: var(--gray); margin: 0 0 1em; }
 .nav-toggle span {
   width: 24px; height: 2px; background: var(--white);
 }
+.nav-close { display: none; }
+
+.nav-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  z-index: 65;
+}
+.nav-backdrop.open { opacity: 1; pointer-events: auto; }
 
 /* ==========================================================================
    Hero
@@ -548,8 +563,66 @@ p { color: var(--gray); margin: 0 0 1em; }
 }
 
 @media (max-width: 720px) {
-  .site-nav { display: none; }
+  .site-nav {
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 100vh;
+    width: min(78vw, 320px);
+    background: var(--bg-panel);
+    border-left: 1px solid var(--border);
+    transform: translateX(100%);
+    transition: transform 0.35s ease;
+    z-index: 70;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .site-nav.open { transform: translateX(0); }
+
+  .site-nav-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .site-nav-title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    color: var(--orange);
+  }
+  .nav-close {
+    display: block;
+    background: none;
+    border: none;
+    color: var(--white);
+    font-size: 1.6rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0 4px;
+  }
+
+  .site-nav-list {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    padding: 10px 0;
+  }
+  .site-nav-list li { border-bottom: 1px solid var(--border); }
+  .site-nav a {
+    padding: 16px 20px;
+    border-bottom: none;
+    font-size: 0.95rem;
+  }
+  .site-nav a.active { background: var(--bg-panel-2); }
+
   .nav-toggle { display: flex; }
+  .nav-backdrop { display: block; }
+
   .topbar-inner { padding-top: 5px; padding-bottom: 5px; }
   .topbar-ticker-track {
     animation: ticker 14s linear infinite;
@@ -652,6 +725,14 @@ p { color: var(--gray); margin: 0 0 1em; }
   color: var(--orange);
 }
 
+.price-card-disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+  pointer-events: none;
+}
+.price-card-disabled:hover { border-color: var(--border); transform: none; }
+.price-card-soon { color: var(--gray-dim); }
+
 .brand-group-logos {
   display: flex;
   align-items: center;
@@ -675,4 +756,40 @@ p { color: var(--gray); margin: 0 0 1em; }
   color: var(--orange);
   border-bottom: 1px solid var(--orange);
   padding-bottom: 2px;
+}
+
+/* ==========================================================================
+   Floating WhatsApp button
+   ========================================================================== */
+.whatsapp-float {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  width: 56px;
+  height: 56px;
+  background: #25D366;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.4);
+  z-index: 90;
+  transition: transform 0.2s ease;
+  animation: whatsapp-pop 0.4s ease 0.6s both;
+}
+.whatsapp-float:hover { transform: scale(1.08); }
+.whatsapp-float svg { width: 28px; height: 28px; color: #ffffff; }
+
+@keyframes whatsapp-pop {
+  from { transform: scale(0); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@media (max-width: 720px) {
+  .whatsapp-float {
+    right: 16px;
+    bottom: 16px;
+    width: 52px;
+    height: 52px;
+  }
 }
