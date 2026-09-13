@@ -2,22 +2,29 @@ document.addEventListener('DOMContentLoaded', function () {
   var yearEl = document.getElementById('year');
   if (yearEl) yearEl.textContent = new Date().getFullYear();
 
+  // Sliding mobile nav panel
   var toggle = document.getElementById('navToggle');
-  var nav = document.querySelector('.site-nav');
-  if (toggle && nav) {
-    toggle.addEventListener('click', function () {
-      var isOpen = nav.style.display === 'flex';
-      nav.style.display = isOpen ? 'none' : 'flex';
-      nav.style.flexDirection = 'column';
-      nav.style.position = 'absolute';
-      nav.style.top = '72px';
-      nav.style.right = '24px';
-      nav.style.background = '#131313';
-      nav.style.border = '1px solid #2a2a2a';
-      nav.style.borderRadius = '6px';
-      nav.style.padding = '16px 20px';
-      nav.style.gap = '16px';
-      nav.style.zIndex = '60';
+  var closeBtn = document.getElementById('navClose');
+  var nav = document.getElementById('siteNav');
+  var backdrop = document.getElementById('navBackdrop');
+
+  function openNav() {
+    nav.classList.add('open');
+    backdrop.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeNav() {
+    nav.classList.remove('open');
+    backdrop.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  if (toggle) toggle.addEventListener('click', openNav);
+  if (closeBtn) closeBtn.addEventListener('click', closeNav);
+  if (backdrop) backdrop.addEventListener('click', closeNav);
+  if (nav) {
+    nav.querySelectorAll('a').forEach(function (link) {
+      link.addEventListener('click', closeNav);
     });
   }
 
