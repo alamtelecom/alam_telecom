@@ -1,0 +1,30 @@
+<header class="site-header">
+  <div class="header-inner">
+    <a href="{{ url_for('index') }}" class="brand">
+      <img src="{{ url_for('static', filename='images/logo.jpeg') }}" alt="{{ store.name }} logo" class="brand-logo">
+      <span class="brand-text">
+        <span class="brand-name">ALAM<span class="accent">TELECOM</span></span>
+        <span class="brand-tagline">{{ store.tagline }}</span>
+      </span>
+    </a>
+
+    <!-- Nav links live in this <ul> — add a new <li><a>...</a></li> here
+         any time a new page needs to appear in the menu. Add data-en / data-hi
+         on the <a> so the language toggle translates it automatically. -->
+    <nav class="site-nav" id="siteNav">
+      <div class="site-nav-head">
+        <span class="site-nav-title" data-en="Menu" data-hi="मेन्यू">Menu</span>
+        <button class="nav-close" id="navClose" aria-label="Close menu">&times;</button>
+      </div>
+      <ul class="site-nav-list">
+        <li><a href="{{ url_for('index') }}" data-en="Home" data-hi="होम" class="{{ 'active' if active_page == 'home' else '' }}">Home</a></li>
+        <li><a href="{{ url_for('prices') }}" data-en="Parts Price" data-hi="पार्ट्स प्राइस" class="{{ 'active' if active_page == 'prices' else '' }}">Parts Price</a></li>
+        <li><a href="{{ url_for('contact') }}" data-en="Contact" data-hi="संपर्क करें" class="{{ 'active' if active_page == 'contact' else '' }}">Contact</a></li>
+      </ul>
+    </nav>
+
+    <button class="nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>

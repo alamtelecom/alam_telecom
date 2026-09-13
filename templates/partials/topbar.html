@@ -1,0 +1,17 @@
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="topbar-ticker">
+      <span class="topbar-ticker-track">
+        <span>{{ store.hours_main }} &nbsp;&middot;&nbsp; {{ store.hours_note }} &nbsp;&middot;&nbsp; Call: {{ store.phone }}</span>
+        <span>{{ store.hours_main }} &nbsp;&middot;&nbsp; {{ store.hours_note }} &nbsp;&middot;&nbsp; Call: {{ store.phone }}</span>
+      </span>
+    </div>
+    <a href="tel:{{ store.phone }}" class="topbar-phone">{{ store.phone }}</a>
+
+    <!-- Language toggle: switches every [data-en]/[data-hi] element on the
+         page between English and Hindi. Logic lives in static/js/script.js -->
+    <button type="button" id="langToggle" class="lang-toggle" aria-label="Switch language / भाषा बदलें">
+      हिंदी
+    </button>
+  </div>
+</div>

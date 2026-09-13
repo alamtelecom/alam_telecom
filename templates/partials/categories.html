@@ -1,0 +1,14 @@
+<section class="section categories reveal">
+  <div class="section-inner">
+    <span class="eyebrow" data-en="Product Range" data-hi="प्रोडक्ट रेंज">Product Range</span>
+    <h2 data-en="Parts we stock" data-hi="हमारे पास उपलब्ध पार्ट्स">Parts we stock</h2>
+    <div class="category-grid">
+      {% for cat in categories %}
+      <div class="category-card">
+        <div class="category-icon icon-{{ cat.icon }}"></div>
+        <span data-en="{{ cat.name }}" data-hi="{{ cat.name_hi if cat.name_hi is defined and cat.name_hi else cat.name }}">{{ cat.name }}</span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>

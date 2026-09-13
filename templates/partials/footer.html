@@ -1,0 +1,23 @@
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-col">
+      <div class="brand-name small">ALAM<span class="accent">TELECOM</span></div>
+      <p data-en="{{ store.experience_years }} years of experience in mobile spare parts and repairing, for every major brand."
+         data-hi="मोबाइल स्पेयर पार्ट्स और रिपेयरिंग में {{ store.experience_years }} साल का अनुभव, हर प्रमुख ब्रांड के लिए।">{{ store.experience_years }} years of experience in mobile spare parts and repairing, for every major brand.</p>
+    </div>
+    <div class="footer-col">
+      <h4 data-en="Visit Us" data-hi="हमसे मिलें">Visit Us</h4>
+      <p>{{ store.address_line1 }}</p>
+      <p>{{ store.address_line2 }}</p>
+      <p><a href="tel:{{ store.phone }}">{{ store.phone }}</a></p>
+    </div>
+    <div class="footer-col">
+      <h4 data-en="Store Hours" data-hi="दुकान का समय">Store Hours</h4>
+      <p>{{ store.hours_main }}</p>
+      <p>{{ store.hours_note }}</p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>&copy; <span id="year"></span> {{ store.name }}. All rights reserved.</span>
+  </div>
+</footer>

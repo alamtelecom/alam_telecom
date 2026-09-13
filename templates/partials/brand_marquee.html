@@ -1,0 +1,27 @@
+<section class="section brands reveal">
+  <div class="section-inner">
+    <span class="eyebrow" data-en="Brands We Cover" data-hi="हम इन ब्रांड्स के पार्ट्स रखते हैं">Brands We Cover</span>
+    <h2 data-en="Parts available for" data-hi="इन ब्रांड्स के लिए पार्ट्स उपलब्ध">Parts available for</h2>
+  </div>
+  <div class="brand-marquee">
+    <div class="brand-track">
+      {% for brand in brands %}
+      <span class="brand-logo-chip">
+        <img src="{{ url_for('static', filename='images/brands/' + brand.lower().replace('+','plus') + '.png') }}"
+             alt="{{ brand }}" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
+        <span class="brand-fallback" style="display:none;">{{ brand }}</span>
+      </span>
+      {% endfor %}
+      {% for brand in brands %}
+      <span class="brand-logo-chip" aria-hidden="true">
+        <img src="{{ url_for('static', filename='images/brands/' + brand.lower().replace('+','plus') + '.png') }}"
+             alt="" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
+        <span class="brand-fallback" style="display:none;">{{ brand }}</span>
+      </span>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="section-inner">
+    <p class="brand-note" data-en="We work with all major phone brands — the strip above covers the most common ones customers ask for." data-hi="हम सभी प्रमुख मोबाइल ब्रांड्स के साथ काम करते हैं — ऊपर दी गई सूची में ग्राहकों द्वारा सबसे ज़्यादा पूछे जाने वाले ब्रांड्स शामिल हैं।">We work with all major phone brands — the strip above covers the most common ones customers ask for.</p>
+  </div>
+</section>

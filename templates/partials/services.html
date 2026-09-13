@@ -1,0 +1,14 @@
+<section class="section services reveal">
+  <div class="section-inner">
+    <span class="eyebrow" data-en="What We Do" data-hi="हम क्या करते हैं">What We Do</span>
+    <h2 data-en="Our services" data-hi="हमारी सेवाएं">Our services</h2>
+    <div class="service-grid">
+      {% for s in services %}
+      <div class="service-card">
+        <h3 data-en="{{ s.name }}" data-hi="{{ s.name_hi if s.name_hi is defined and s.name_hi else s.name }}">{{ s.name }}</h3>
+        <p data-en="{{ s.desc }}" data-hi="{{ s.desc_hi if s.desc_hi is defined and s.desc_hi else s.desc }}">{{ s.desc }}</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>

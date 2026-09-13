@@ -1,0 +1,38 @@
+<section class="hero reveal">
+  <div class="hero-inner">
+    <div class="hero-text">
+      <span class="eyebrow" data-en="Mobile Spare Parts & Repairing Shop" data-hi="मोबाइल स्पेयर पार्ट्स और रिपेयरिंग शॉप">Mobile Spare Parts & Repairing Shop</span>
+      <h1>
+        <span data-en="Every Part." data-hi="हर पार्ट.">Every Part.</span><br>
+        <span data-en="Every Brand." data-hi="हर ब्रांड.">Every Brand.</span><br>
+        <span class="accent" data-en="A to Z." data-hi="A से Z तक.">A to Z.</span>
+      </h1>
+      <p class="hero-lead"
+         data-en="{{ store.name }} has been serving customers in Najafgarh for {{ store.experience_years }} years. We stock genuine displays, batteries, charging ports, camera modules, speakers and motherboard-level parts for all major phone brands, and we also carry out mobile repairing in-house."
+         data-hi="{{ store.name }} पिछले {{ store.experience_years }} सालों से नजफगढ़ में ग्राहकों की सेवा कर रहा है। हमारे पास सभी प्रमुख फोन ब्रांड्स के लिए असली डिस्प्ले, बैटरी, चार्जिंग पोर्ट, कैमरा मॉड्यूल, स्पीकर और मदरबोर्ड-लेवल पार्ट्स उपलब्ध हैं, और हम मोबाइल रिपेयरिंग भी खुद करते हैं।">
+        {{ store.name }} has been serving customers in Najafgarh for
+        {{ store.experience_years }} years. We stock genuine displays,
+        batteries, charging ports, camera modules, speakers and
+        motherboard-level parts for all major phone brands, and we also
+        carry out mobile repairing in-house.
+      </p>
+      <div class="hero-facts">
+        <div class="hero-fact">
+          <span class="hero-fact-num">{{ store.experience_years }}+</span>
+          <span class="hero-fact-label" data-en="Years in Najafgarh" data-hi="नजफगढ़ में वर्षों से">Years in Najafgarh</span>
+        </div>
+        <div class="hero-fact">
+          <span class="hero-fact-num">A–Z</span>
+          <span class="hero-fact-label" data-en="Parts, All Brands" data-hi="पार्ट्स, सभी ब्रांड">Parts, All Brands</span>
+        </div>
+        <div class="hero-fact">
+          <span class="hero-fact-num" data-en="Parts + Repair" data-hi="पार्ट्स + रिपेयर">Parts + Repair</span>
+          <span class="hero-fact-label" data-en="Both Under One Roof" data-hi="दोनों एक ही छत के नीचे">Both Under One Roof</span>
+        </div>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <img src="{{ url_for('static', filename='images/logo.jpeg') }}" alt="{{ store.name }} logo" class="hero-logo">
+    </div>
+  </div>
+</section>
