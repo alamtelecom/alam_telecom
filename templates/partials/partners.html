@@ -1,86 +1,62 @@
-<!--
-  Collaboration / brand-partners section.
-  Shows companies you have a business tie-up with (they make the products —
-  battery/earbuds/charger etc — you sell/repair with). This is DIFFERENT
-  from brand_marquee.html above, which just lists phone brands you stock
-  spare parts for.
+<!-- PARTNERS / COLLABORATIONS SECTION -->
+{% if partners is defined and partners is not none and partners|length > 0 %}
+<section id="partners" class="partners-section">
+  <div class="container">
+    <div class="section-header text-center">
+      <span class="section-tag">
+        {% if session.get('lang') == 'hi' %}हमारा नेटवर्क{% else %}Our Network{% endif %}
+      </span>
+      <h2 class="section-title">
+        {% if session.get('lang') == 'hi' %}
+          हमारे <span class="highlight">सहयोगी</span>
+        {% else %}
+          Our <span class="highlight">Collaborations</span>
+        {% endif %}
+      </h2>
+      <p class="section-subtitle">
+        {% if session.get('lang') == 'hi' %}
+          हम केवल भरोसेमंद और प्रमाणित ब्रांड्स के साथ काम करते हैं।
+        {% else %}
+          We work exclusively with trusted, certified brands to deliver genuine parts.
+        {% endif %}
+      </p>
+    </div>
 
-  Pass a `partners` list from your Flask view to add more companies later,
-  e.g.:
-
-    partners = [
-      {
-        "name": "MOBICROWN",
-        "logo": "images/brands/mobicrown.png",
-        "desc": "We've officially collaborated with MOBICROWN to bring you genuine batteries, earbuds and chargers.",
-        "desc_hi": "हमने MOBICROWN के साथ आधिकारिक सहयोग किया है ताकि आपको असली बैटरी, ईयरबड्स और चार्जर मिल सकें।",
-        "tags": ["Battery", "Earbuds", "Charger"],
-      },
-      {
-        "name": "AM PLUS",
-        "logo": "images/brands/am_plus.png",
-        "desc": "We work with AM Plus for display work — quality screens sourced and fitted through them.",
-        "desc_hi": "हम डिस्प्ले के काम के लिए AM Plus के साथ काम करते हैं — अच्छी क्वालिटी की स्क्रीन इन्हीं के ज़रिए मंगवाते और फिट करते हैं।",
-        "tags": ["Display"],
-        "badge_en": "Display Associate",
-        "badge_hi": "डिस्प्ले एसोसिएट",
-      },
-      # add more partner brands here...
-    ]
-
-  If you don't pass `partners` at all, the block below falls back to a
-  single default MOBICROWN card so the section still works out of the box.
--->
-<section class="section partners reveal">
-  <div class="section-inner">
-    <span class="eyebrow" data-en="Our Collaborations" data-hi="हमारे सहयोग">Our Collaborations</span>
-    <h2 data-en="Brands We're Proud to Partner With" data-hi="जिन ब्रांड्स के साथ हमें साझेदारी पर गर्व है">Brands We're Proud to Partner With</h2>
-
-    {% set partner_list = partners if partners is defined and partners else [
-      {
-        'name': 'MOBICROWN',
-        'logo': 'images/brands/mobicrown.png',
-        'desc': "We've officially collaborated with MOBICROWN to bring you genuine batteries, earbuds and chargers.",
-        'desc_hi': 'हमने MOBICROWN के साथ आधिकारिक सहयोग किया है ताकि आपको असली बैटरी, ईयरबड्स और चार्जर मिल सकें।',
-        'tags': ['Battery', 'Earbuds', 'Charger']
-      },
-      {
-        'name': 'AM PLUS',
-        'logo': 'images/brands/am_plus.png',
-        'desc': "We work with AM Plus for display work — quality screens sourced and fitted through them.",
-        'desc_hi': 'हम डिस्प्ले के काम के लिए AM Plus के साथ काम करते हैं — अच्छी क्वालिटी की स्क्रीन इन्हीं के ज़रिए मंगवाते और फिट करते हैं।',
-        'tags': ['Display'],
-        'badge_en': 'Display Associate',
-        'badge_hi': 'डिस्प्ले एसोसिएट'
-      }
-    ] %}
-
-    <div class="partner-grid">
-      {% for p in partner_list %}
+    <div class="partners-grid">
+      {% for p in partners %}
       <div class="partner-card">
-        <div class="partner-logo-wrap">
-          <img src="{{ url_for('static', filename=p.logo) }}" alt="{{ p.name }} logo">
-        </div>
-        <div class="partner-info">
-          <div class="partner-name-row">
-            <span class="partner-name">{{ p.name }}</span>
-            <span class="partner-badge"
-                  data-en="{{ p.badge_en if p.badge_en is defined and p.badge_en else 'Authorized Partner' }}"
-                  data-hi="{{ p.badge_hi if p.badge_hi is defined and p.badge_hi else 'अधिकृत पार्टनर' }}">{{ p.badge_en if p.badge_en is defined and p.badge_en else 'Authorized Partner' }}</span>
-          </div>
-          <p class="partner-desc"
-             data-en="{{ p.desc }}"
-             data-hi="{{ p.desc_hi if p.desc_hi is defined and p.desc_hi else p.desc }}">{{ p.desc }}</p>
-          {% if p.tags %}
-          <div class="partner-tags">
-            {% for tag in p.tags %}
-            <span class="partner-tag">{{ tag }}</span>
-            {% endfor %}
-          </div>
+        <div class="partner-badge">
+          {% if session.get('lang') == 'hi' %}
+            {{ p.badge_hi if p.badge_hi else p.badge_en }}
+          {% else %}
+            {{ p.badge_en }}
           {% endif %}
         </div>
+
+        <div class="partner-logo-box">
+          <img src="{{ url_for('static', filename=p.logo) }}" alt="{{ p.name }}" loading="lazy">
+        </div>
+
+        <h3 class="partner-name">{{ p.name }}</h3>
+
+        <p class="partner-desc">
+          {% if session.get('lang') == 'hi' %}
+            {{ p.desc_hi if p.desc_hi else p.desc }}
+          {% else %}
+            {{ p.desc }}
+          {% endif %}
+        </p>
+
+        {% if p.tags %}
+        <div class="partner-tags">
+          {% for tag in p.tags %}
+          <span class="partner-tag">{{ tag }}</span>
+          {% endfor %}
+        </div>
+        {% endif %}
       </div>
       {% endfor %}
     </div>
   </div>
 </section>
+{% endif %}
