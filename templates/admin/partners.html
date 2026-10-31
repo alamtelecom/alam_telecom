@@ -43,7 +43,8 @@
   </div>
 
   <!-- Existing Partners Grid -->
-  <h2>Current Partners ({{ partners|length }})</h2>
+  <h2>Current Partners ({{ partners|length if partners else 0 }})</h2>
+  {% if partners and partners|length > 0 %}
   <div class="admin-grid partner-manage-grid">
     {% for p in partners %}
     <div class="admin-pdf-card partner-manage-card">
@@ -69,6 +70,9 @@
     </div>
     {% endfor %}
   </div>
+  {% else %}
+  <p style="color: var(--gray); padding: 20px 0;">No active partners. Use the form above to add a partner.</p>
+  {% endif %}
 </div>
 
 {% endblock %}
