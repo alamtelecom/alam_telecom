@@ -1,0 +1,74 @@
+{% extends "admin/_base_admin.html" %}
+{% block title %}Manage Partners | Alam Telecom Admin{% endblock %}
+{% block content %}
+
+<div class="admin-card admin-card-wide">
+  <h1>Manage Collaborations / Partners</h1>
+  <p class="admin-sub">Home page ke "Our Collaborations" section me naye partners add karein ya existing partners ko remove karein.</p>
+
+  <!-- Add New Partner Form -->
+  <div class="admin-card" style="max-width: 100%; margin: 0 0 32px 0;">
+    <h2>Add New Partner</h2>
+    <form method="POST" action="{{ url_for('admin.add_partner') }}" enctype="multipart/form-data" class="admin-form">
+      <label>Partner Brand Name *
+        <input type="text" name="name" placeholder="e.g. MOBICROWN" required>
+      </label>
+
+      <label>English Badge Text
+        <input type="text" name="badge_en" placeholder="Default: Authorized Partner">
+      </label>
+
+      <label>Hindi Badge Text
+        <input type="text" name="badge_hi" placeholder="Default: अधिकृत पार्टनर">
+      </label>
+
+      <label>Description (English) *
+        <textarea name="desc" rows="3" style="background:var(--bg); border:1px solid var(--border); border-radius:var(--radius); padding:10px; color:var(--white); font-family:var(--font-body);" placeholder="Write details about the partnership..." required></textarea>
+      </label>
+
+      <label>Description (Hindi)
+        <textarea name="desc_hi" rows="3" style="background:var(--bg); border:1px solid var(--border); border-radius:var(--radius); padding:10px; color:var(--white); font-family:var(--font-body);" placeholder="साझेदारी के बारे में जानकारी..."></textarea>
+      </label>
+
+      <label>Tags (Comma separated)
+        <input type="text" name="tags" placeholder="e.g. Battery, Earbuds, Charger">
+      </label>
+
+      <label>Logo Image * (PNG, JPG, WEBP, SVG)
+        <input type="file" name="logo_file" accept="image/*" required>
+      </label>
+
+      <button type="submit" class="btn btn-primary" style="align-self: flex-start;">+ Add Partner</button>
+    </form>
+  </div>
+
+  <!-- Existing Partners Grid -->
+  <h2>Current Partners ({{ partners|length }})</h2>
+  <div class="admin-grid partner-manage-grid">
+    {% for p in partners %}
+    <div class="admin-pdf-card partner-manage-card">
+      <div class="partner-manage-logo">
+        <img src="{{ url_for('static', filename=p.logo) }}" alt="{{ p.name }}">
+      </div>
+      <div class="admin-pdf-info">
+        <span class="admin-pdf-name">{{ p.name }}</span>
+        <span class="admin-status admin-status-ok">{{ p.badge_en }}</span>
+        <p style="font-size: 0.82rem; color: var(--gray); margin: 6px 0;">{{ p.desc }}</p>
+        {% if p.tags %}
+        <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+          {% for tag in p.tags %}
+          <span style="font-size: 0.7rem; border: 1px solid var(--border); padding: 2px 8px; border-radius: 4px; color: var(--gray);">{{ tag }}</span>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+
+      <form method="POST" action="{{ url_for('admin.delete_partner', partner_id=p.id) }}" onsubmit="return confirm('Are you sure you want to remove this partner?');">
+        <button type="submit" class="partner-manage-delete">Delete Partner</button>
+      </form>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+{% endblock %}

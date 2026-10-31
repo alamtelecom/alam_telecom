@@ -1,0 +1,17 @@
+{% extends "admin/_base_admin.html" %}
+{% block title %}Change Admin Email | Alam Telecom{% endblock %}
+{% block content %}
+<div class="admin-card">
+  <h1>Change Admin Email</h1>
+  <p class="admin-sub">Current Email: <strong style="color: var(--white);">{{ current_email }}</strong></p>
+  <form method="POST" class="admin-form">
+    <label>Current Password
+      <input type="password" name="current_password" required placeholder="Enter current password">
+    </label>
+    <label>New Email Address
+      <input type="email" name="new_email" required placeholder="newemail@gmail.com">
+    </label>
+    <button type="submit" class="btn btn-primary">Send OTP to Current Email</button>
+  </form>
+</div>
+{% endblock %}

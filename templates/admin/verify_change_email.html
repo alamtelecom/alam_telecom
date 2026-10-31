@@ -1,0 +1,15 @@
+{% extends "admin/_base_admin.html" %}
+{% block title %}Verify Email Change | Alam Telecom{% endblock %}
+{% block content %}
+<div class="admin-card">
+  <h1>Verify Email Change</h1>
+  <p class="admin-sub">Apne current email par bheja gaya 6-digit OTP daalein taaki naya email (<strong style="color: var(--white);">{{ new_email }}</strong>) activate ho sake.</p>
+  <form method="POST" class="admin-form">
+    <label>6-Digit Code
+      <input type="text" name="otp" required maxlength="6" pattern="[0-9]{6}" placeholder="123456">
+    </label>
+    <button type="submit" class="btn btn-primary">Confirm & Update Email</button>
+  </form>
+  <a class="admin-link" href="{{ url_for('admin.change_email') }}">Resend / Change Email</a>
+</div>
+{% endblock %}
