@@ -1,31 +1,32 @@
 # admin.py
 
 """
-Admin panel: login, password change/reset (via email OTP), PDF uploads
-for the Parts Price section, and partner management.
+Admin panel: login, password change/reset (via Resend API), PDF uploads
+for the Parts Price section, partner management, and admin email change.
 
 All admin state (login email, hashed password) is kept in
 instance/admin_config.json, created automatically the first time you visit
-/admin (first-time setup). This file is created on YOUR machine when you
-run the app — it is not something you need to create by hand, and it is
-never sent anywhere.
+/admin (first-time setup).
 """
 
 import json
 import os
 import random
-import smtplib
 import string
 import time
-from email.mime.text import MIMEText
 from functools import wraps
 
+from dotenv import load_dotenv
 from flask import (
     Blueprint, current_app, flash, redirect, render_template,
     request, session, url_for,
 )
+import resend
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
+
+# Load environment variables from .env file
+load_dotenv()
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
 
@@ -34,16 +35,11 @@ CONFIG_PATH = os.path.join(INSTANCE_DIR, "admin_config.json")
 OTP_PATH = os.path.join(INSTANCE_DIR, "otp.json")
 OTP_VALID_SECONDS = 10 * 60  # 10 minutes
 
-
 # ---------------------------------------------------------------------------
-# Fill in your Gmail App Password below
+# Resend API Configuration (Loaded securely from .env or system environment)
 # ---------------------------------------------------------------------------
-SMTP_CONFIG = {
-    "host": "smtp.gmail.com",
-    "port": 587,
-    "sender_email": "mdmhfooz7105@gmail.com",
-    "app_password": "sqqtjcnvlkyalukg",
-}
+RESEND_API_KEY = os.environ.get("RESEND_API_KEY", "")
+resend.api_key = RESEND_API_KEY
 
 
 # ---------------------------------------------------------------------------
@@ -81,6 +77,7 @@ def update_email(new_email):
     with open(CONFIG_PATH, "w", encoding="utf-8") as f:
         json.dump(config, f)
 
+
 def save_otp(email, otp):
     _ensure_instance_dir()
     data = {"email": email, "otp": otp, "created_at": time.time()}
@@ -101,31 +98,19 @@ def clear_otp():
 
 
 # ---------------------------------------------------------------------------
-# Email sending (With Timeout & Port 465 SSL Fallback)
+# Email sending via Resend HTTP API (Verified Domain)
 # ---------------------------------------------------------------------------
 def send_otp_email(to_email, otp):
-    msg = MIMEText(
-        f"Your Alam Telecom admin password reset code is: {otp}\n\n"
-        f"This code expires in 10 minutes. If you didn't request this, ignore this email."
-    )
-    msg["Subject"] = "Alam Telecom Admin - Password Reset Code"
-    msg["From"] = SMTP_CONFIG["sender_email"]
-    msg["To"] = to_email
-
-    # Pehle Port 587 (TLS) try karega, timeout 12s
-    try:
-        with smtplib.SMTP(SMTP_CONFIG["host"], SMTP_CONFIG["port"], timeout=12) as server:
-            server.ehlo()
-            server.starttls()
-            server.ehlo()
-            server.login(SMTP_CONFIG["sender_email"], SMTP_CONFIG["app_password"])
-            server.sendmail(SMTP_CONFIG["sender_email"], [to_email], msg.as_string())
-            return
-    except (smtplib.SMTPConnectError, TimeoutError, OSError):
-        # Agar Port 587 live server par block ho, toh Port 465 (SSL) fallback karega
-        with smtplib.SMTP_SSL(SMTP_CONFIG["host"], 465, timeout=12) as server:
-            server.login(SMTP_CONFIG["sender_email"], SMTP_CONFIG["app_password"])
-            server.sendmail(SMTP_CONFIG["sender_email"], [to_email], msg.as_string())
+    params = {
+        "from": "Alam Telecom <admin@alamtelecom.shop>",
+        "to": [to_email],
+        "subject": "Alam Telecom Admin - Verification Code",
+        "text": (
+            f"Your Alam Telecom verification code is: {otp}\n\n"
+            f"This code expires in 10 minutes. If you didn't request this, ignore this email."
+        ),
+    }
+    resend.Emails.send(params)
 
 
 # ---------------------------------------------------------------------------
@@ -185,7 +170,7 @@ def login():
     if request.method == "POST":
         email = request.form.get("email", "").strip()
         password = request.form.get("password", "")
-        if email == config["email"] and check_password_hash(config["password_hash"], password):
+        if email.lower() == config["email"].lower() and check_password_hash(config["password_hash"], password):
             session["admin_logged_in"] = True
             return redirect(url_for("admin.dashboard"))
         flash("Incorrect email or password.")
@@ -295,12 +280,8 @@ def forgot_password():
                 send_otp_email(email, otp)
                 flash("A verification code has been sent to your email.")
                 return redirect(url_for("admin.reset_password"))
-            except smtplib.SMTPAuthenticationError:
-                flash("Gmail authentication error: Check Gmail App Password in admin.py.")
-            except (smtplib.SMTPConnectError, TimeoutError, OSError) as e:
-                flash(f"SMTP Server connection failed (Hosting firewall may be blocking ports 587/465): {e}")
             except Exception as e:
-                flash(f"Error: {e}")
+                flash(f"Could not send email: {e}")
 
     return render_template("admin/forgot_password.html")
 
@@ -339,11 +320,72 @@ def reset_password():
             flash("Password reset. Please log in.")
             return redirect(url_for("admin.login"))
 
-        
-
     return render_template("admin/reset_password.html")
 
 
+# ---------------------------------------------------------------------------
+# Change Admin Email (with OTP Verification)
+# ---------------------------------------------------------------------------
+@admin_bp.route("/change-email", methods=["GET", "POST"])
+@login_required
+def change_email():
+    config = load_admin_config()
+    if request.method == "POST":
+        current_password = request.form.get("current_password", "")
+        new_email = request.form.get("new_email", "").strip().lower()
+
+        if not check_password_hash(config["password_hash"], current_password):
+            flash("Current password is incorrect.")
+        elif not new_email or "@" not in new_email:
+            flash("Please enter a valid new email address.")
+        elif new_email == config["email"].lower():
+            flash("New email must be different from the current email.")
+        else:
+            try:
+                otp = "".join(random.choices(string.digits, k=6))
+                save_otp(config["email"], otp)
+                session["pending_new_email"] = new_email
+                send_otp_email(config["email"], otp)
+                flash(f"Verification code sent to your current email ({config['email']}).")
+                return redirect(url_for("admin.verify_change_email"))
+            except Exception as e:
+                flash(f"Could not send email: {e}")
+
+    return render_template("admin/change_email.html", current_email=config["email"])
+
+
+@admin_bp.route("/verify-change-email", methods=["GET", "POST"])
+@login_required
+def verify_change_email():
+    new_email = session.get("pending_new_email")
+    if not new_email:
+        flash("No email change in progress. Please start again.")
+        return redirect(url_for("admin.change_email"))
+
+    if request.method == "POST":
+        otp_input = request.form.get("otp", "").strip()
+        stored = load_otp()
+
+        if stored is None:
+            flash("No verification code found. Request a new one.")
+            return redirect(url_for("admin.change_email"))
+
+        if (time.time() - stored["created_at"]) > OTP_VALID_SECONDS:
+            clear_otp()
+            session.pop("pending_new_email", None)
+            flash("Verification code expired. Please start again.")
+            return redirect(url_for("admin.change_email"))
+
+        if otp_input != stored["otp"]:
+            flash("Incorrect verification code.")
+        else:
+            update_email(new_email)
+            clear_otp()
+            session.pop("pending_new_email", None)
+            flash(f"Admin email updated successfully to {new_email}.")
+            return redirect(url_for("admin.dashboard"))
+
+    return render_template("admin/verify_change_email.html", new_email=new_email)
 
 
 # ---------------------------------------------------------------------------
@@ -480,64 +522,3 @@ def delete_partner(partner_id):
 
     flash(f"Partner '{target.get('name')}' removed.")
     return redirect(url_for("admin.partners"))
-
-@admin_bp.route("/change-email", methods=["GET", "POST"])
-@login_required
-def change_email():
-    config = load_admin_config()
-    if request.method == "POST":
-        current_password = request.form.get("current_password", "")
-        new_email = request.form.get("new_email", "").strip().lower()
-
-        if not check_password_hash(config["password_hash"], current_password):
-            flash("Current password is incorrect.")
-        elif not new_email or "@" not in new_email:
-            flash("Please enter a valid new email address.")
-        elif new_email == config["email"].lower():
-            flash("New email must be different from the current email.")
-        else:
-            try:
-                otp = "".join(random.choices(string.digits, k=6))
-                save_otp(config["email"], otp)
-                session["pending_new_email"] = new_email
-                send_otp_email(config["email"], otp)
-                flash(f"Verification code sent to your current email ({config['email']}).")
-                return redirect(url_for("admin.verify_change_email"))
-            except Exception as e:
-                flash(f"Could not send email: {e}")
-
-    return render_template("admin/change_email.html", current_email=config["email"])
-
-
-@admin_bp.route("/verify-change-email", methods=["GET", "POST"])
-@login_required
-def verify_change_email():
-    new_email = session.get("pending_new_email")
-    if not new_email:
-        flash("No email change in progress. Please start again.")
-        return redirect(url_for("admin.change_email"))
-
-    if request.method == "POST":
-        otp_input = request.form.get("otp", "").strip()
-        stored = load_otp()
-
-        if stored is None:
-            flash("No verification code found. Request a new one.")
-            return redirect(url_for("admin.change_email"))
-
-        if (time.time() - stored["created_at"]) > OTP_VALID_SECONDS:
-            clear_otp()
-            session.pop("pending_new_email", None)
-            flash("Verification code expired. Please start again.")
-            return redirect(url_for("admin.change_email"))
-
-        if otp_input != stored["otp"]:
-            flash("Incorrect verification code.")
-        else:
-            update_email(new_email)
-            clear_otp()
-            session.pop("pending_new_email", None)
-            flash(f"Admin email updated successfully to {new_email}.")
-            return redirect(url_for("admin.dashboard"))
-
-    return render_template("admin/verify_change_email.html", new_email=new_email)
