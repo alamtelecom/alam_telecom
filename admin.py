@@ -1,6 +1,8 @@
+# admin.py
+
 """
-Admin panel: login, password change/reset (via email OTP), and PDF uploads
-for the Parts Price section.
+Admin panel: login, password change/reset (via email OTP), PDF uploads
+for the Parts Price section, and partner management.
 
 All admin state (login email, hashed password) is kept in
 instance/admin_config.json, created automatically the first time you visit
@@ -34,9 +36,7 @@ OTP_VALID_SECONDS = 10 * 60  # 10 minutes
 
 
 # ---------------------------------------------------------------------------
-# Fill in your Gmail App Password below (Google Account > Security >
-# 2-Step Verification > App Passwords). This is NOT your normal Gmail
-# password. Keep this file private — do not upload it publicly.
+# Fill in your Gmail App Password below
 # ---------------------------------------------------------------------------
 SMTP_CONFIG = {
     "host": "smtp.gmail.com",
@@ -75,6 +75,12 @@ def update_password(new_password):
         json.dump(config, f)
 
 
+def update_email(new_email):
+    config = load_admin_config()
+    config["email"] = new_email
+    with open(CONFIG_PATH, "w", encoding="utf-8") as f:
+        json.dump(config, f)
+
 def save_otp(email, otp):
     _ensure_instance_dir()
     data = {"email": email, "otp": otp, "created_at": time.time()}
@@ -95,7 +101,7 @@ def clear_otp():
 
 
 # ---------------------------------------------------------------------------
-# Email sending
+# Email sending (With Timeout & Port 465 SSL Fallback)
 # ---------------------------------------------------------------------------
 def send_otp_email(to_email, otp):
     msg = MIMEText(
@@ -106,10 +112,20 @@ def send_otp_email(to_email, otp):
     msg["From"] = SMTP_CONFIG["sender_email"]
     msg["To"] = to_email
 
-    with smtplib.SMTP(SMTP_CONFIG["host"], SMTP_CONFIG["port"]) as server:
-        server.starttls()
-        server.login(SMTP_CONFIG["sender_email"], SMTP_CONFIG["app_password"])
-        server.sendmail(SMTP_CONFIG["sender_email"], [to_email], msg.as_string())
+    # Pehle Port 587 (TLS) try karega, timeout 12s
+    try:
+        with smtplib.SMTP(SMTP_CONFIG["host"], SMTP_CONFIG["port"], timeout=12) as server:
+            server.ehlo()
+            server.starttls()
+            server.ehlo()
+            server.login(SMTP_CONFIG["sender_email"], SMTP_CONFIG["app_password"])
+            server.sendmail(SMTP_CONFIG["sender_email"], [to_email], msg.as_string())
+            return
+    except (smtplib.SMTPConnectError, TimeoutError, OSError):
+        # Agar Port 587 live server par block ho, toh Port 465 (SSL) fallback karega
+        with smtplib.SMTP_SSL(SMTP_CONFIG["host"], 465, timeout=12) as server:
+            server.login(SMTP_CONFIG["sender_email"], SMTP_CONFIG["app_password"])
+            server.sendmail(SMTP_CONFIG["sender_email"], [to_email], msg.as_string())
 
 
 # ---------------------------------------------------------------------------
@@ -139,7 +155,6 @@ def index():
 
 @admin_bp.route("/setup", methods=["GET", "POST"])
 def setup():
-    """First-time setup: only reachable if no admin account exists yet."""
     if load_admin_config() is not None:
         return redirect(url_for("admin.login"))
 
@@ -232,8 +247,6 @@ def upload_pdf(category_slug, brand_slug):
     os.makedirs(folder, exist_ok=True)
     target_path = os.path.join(folder, brand_slug + ".pdf")
 
-    # Delete the old PDF first (if any), then save the new one under the
-    # same fixed name so the public price page keeps working automatically.
     if os.path.exists(target_path):
         os.remove(target_path)
     file.save(target_path)
@@ -273,17 +286,21 @@ def forgot_password():
 
     if request.method == "POST":
         email = request.form.get("email", "").strip()
-        if email != config["email"]:
+        if not config or email.lower() != config.get("email", "").lower():
             flash("No admin account uses that email.")
         else:
-            otp = "".join(random.choices(string.digits, k=6))
-            save_otp(email, otp)
             try:
+                otp = "".join(random.choices(string.digits, k=6))
+                save_otp(email, otp)
                 send_otp_email(email, otp)
                 flash("A verification code has been sent to your email.")
                 return redirect(url_for("admin.reset_password"))
+            except smtplib.SMTPAuthenticationError:
+                flash("Gmail authentication error: Check Gmail App Password in admin.py.")
+            except (smtplib.SMTPConnectError, TimeoutError, OSError) as e:
+                flash(f"SMTP Server connection failed (Hosting firewall may be blocking ports 587/465): {e}")
             except Exception as e:
-                flash(f"Could not send email. Check the SMTP settings in admin.py. ({e})")
+                flash(f"Error: {e}")
 
     return render_template("admin/forgot_password.html")
 
@@ -322,4 +339,205 @@ def reset_password():
             flash("Password reset. Please log in.")
             return redirect(url_for("admin.login"))
 
+        
+
     return render_template("admin/reset_password.html")
+
+
+
+
+# ---------------------------------------------------------------------------
+# Partners (Collaborations) Management
+# ---------------------------------------------------------------------------
+PARTNERS_PATH = os.path.join(INSTANCE_DIR, "partners.json")
+ALLOWED_LOGO_EXTS = {".png", ".jpg", ".jpeg", ".webp", ".svg"}
+
+
+def load_partners():
+    _ensure_instance_dir()
+    if not os.path.exists(PARTNERS_PATH):
+        return [
+            {
+                "id": "mobicrown",
+                "name": "MOBICROWN",
+                "logo": "images/brands/mobicrown.png",
+                "desc": "We've officially collaborated with MOBICROWN to bring you genuine batteries, earbuds and chargers.",
+                "desc_hi": "हमने MOBICROWN के साथ आधिकारिक सहयोग किया है ताकि आपको असली बैटरी, ईयरबड्स और चार्जर मिल सकें।",
+                "badge_en": "Authorized Partner",
+                "badge_hi": "अधिकृत पार्टनर",
+                "tags": ["Battery", "Earbuds", "Charger"],
+            },
+            {
+                "id": "am-plus",
+                "name": "AM PLUS",
+                "logo": "images/brands/am_plus.png",
+                "desc": "We work with AM Plus for display work — quality screens sourced and fitted through them.",
+                "desc_hi": "हम डिस्प्ले के काम के लिए AM Plus के साथ काम करते हैं — अच्छी क्वालिटी की स्क्रीन इन्हीं के ज़रिए मंगवाते और फिट करते हैं।",
+                "badge_en": "Display Associate",
+                "badge_hi": "डिस्प्ले एसोसिएट",
+                "tags": ["Display"],
+            }
+        ]
+    with open(PARTNERS_PATH, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def save_partners(partners):
+    _ensure_instance_dir()
+    with open(PARTNERS_PATH, "w", encoding="utf-8") as f:
+        json.dump(partners, f, ensure_ascii=False, indent=2)
+
+
+def _unique_partner_id(name, existing_partners):
+    base = "".join(c if c.isalnum() else "_" for c in name.lower()).strip("_") or "partner"
+    existing_ids = {p.get("id") for p in existing_partners}
+    slug = base
+    n = 1
+    while slug in existing_ids:
+        slug = f"{base}_{n}"
+        n += 1
+    return slug
+
+
+@admin_bp.route("/partners", methods=["GET"])
+@login_required
+def partners():
+    partners_list = load_partners()
+    return render_template("admin/partners.html", partners=partners_list)
+
+
+@admin_bp.route("/partners/add", methods=["POST"])
+@login_required
+def add_partner():
+    name = request.form.get("name", "").strip()
+    desc = request.form.get("desc", "").strip()
+    desc_hi = request.form.get("desc_hi", "").strip()
+    badge_en = request.form.get("badge_en", "").strip() or "Authorized Partner"
+    badge_hi = request.form.get("badge_hi", "").strip() or "अधिकृत पार्टनर"
+    tags_raw = request.form.get("tags", "").strip()
+    tags = [t.strip() for t in tags_raw.split(",") if t.strip()]
+
+    if not name:
+        flash("Partner name is required.")
+        return redirect(url_for("admin.partners"))
+    if not desc:
+        flash("Description (English) is required.")
+        return redirect(url_for("admin.partners"))
+
+    logo_file = request.files.get("logo_file")
+    if not logo_file or logo_file.filename == "":
+        flash("Please choose a logo image.")
+        return redirect(url_for("admin.partners"))
+
+    _, ext = os.path.splitext(logo_file.filename.lower())
+    if ext not in ALLOWED_LOGO_EXTS:
+        flash("Logo must be PNG, JPG, WEBP or SVG.")
+        return redirect(url_for("admin.partners"))
+
+    all_partners = load_partners()
+    partner_id = _unique_partner_id(name, all_partners)
+
+    target_dir = os.path.join(current_app.static_folder, "images", "partners")
+    os.makedirs(target_dir, exist_ok=True)
+    filename = secure_filename(f"{partner_id}{ext}")
+    target_path = os.path.join(target_dir, filename)
+    logo_file.save(target_path)
+
+    new_p = {
+        "id": partner_id,
+        "name": name,
+        "logo": f"images/partners/{filename}",
+        "desc": desc,
+        "desc_hi": desc_hi or desc,
+        "badge_en": badge_en,
+        "badge_hi": badge_hi,
+        "tags": tags,
+    }
+    all_partners.append(new_p)
+    save_partners(all_partners)
+
+    flash(f"Partner '{name}' added successfully.")
+    return redirect(url_for("admin.partners"))
+
+
+@admin_bp.route("/partners/<partner_id>/delete", methods=["POST"])
+@login_required
+def delete_partner(partner_id):
+    all_partners = load_partners()
+    target = next((p for p in all_partners if p.get("id") == partner_id), None)
+    if not target:
+        flash("Partner not found.")
+        return redirect(url_for("admin.partners"))
+
+    logo = target.get("logo", "")
+    if logo.startswith("images/partners/"):
+        img_path = os.path.join(current_app.static_folder, logo)
+        if os.path.exists(img_path):
+            os.remove(img_path)
+
+    all_partners = [p for p in all_partners if p.get("id") != partner_id]
+    save_partners(all_partners)
+
+    flash(f"Partner '{target.get('name')}' removed.")
+    return redirect(url_for("admin.partners"))
+
+@admin_bp.route("/change-email", methods=["GET", "POST"])
+@login_required
+def change_email():
+    config = load_admin_config()
+    if request.method == "POST":
+        current_password = request.form.get("current_password", "")
+        new_email = request.form.get("new_email", "").strip().lower()
+
+        if not check_password_hash(config["password_hash"], current_password):
+            flash("Current password is incorrect.")
+        elif not new_email or "@" not in new_email:
+            flash("Please enter a valid new email address.")
+        elif new_email == config["email"].lower():
+            flash("New email must be different from the current email.")
+        else:
+            try:
+                otp = "".join(random.choices(string.digits, k=6))
+                save_otp(config["email"], otp)
+                session["pending_new_email"] = new_email
+                send_otp_email(config["email"], otp)
+                flash(f"Verification code sent to your current email ({config['email']}).")
+                return redirect(url_for("admin.verify_change_email"))
+            except Exception as e:
+                flash(f"Could not send email: {e}")
+
+    return render_template("admin/change_email.html", current_email=config["email"])
+
+
+@admin_bp.route("/verify-change-email", methods=["GET", "POST"])
+@login_required
+def verify_change_email():
+    new_email = session.get("pending_new_email")
+    if not new_email:
+        flash("No email change in progress. Please start again.")
+        return redirect(url_for("admin.change_email"))
+
+    if request.method == "POST":
+        otp_input = request.form.get("otp", "").strip()
+        stored = load_otp()
+
+        if stored is None:
+            flash("No verification code found. Request a new one.")
+            return redirect(url_for("admin.change_email"))
+
+        if (time.time() - stored["created_at"]) > OTP_VALID_SECONDS:
+            clear_otp()
+            session.pop("pending_new_email", None)
+            flash("Verification code expired. Please start again.")
+            return redirect(url_for("admin.change_email"))
+
+        if otp_input != stored["otp"]:
+            flash("Incorrect verification code.")
+        else:
+            update_email(new_email)
+            clear_otp()
+            session.pop("pending_new_email", None)
+            flash(f"Admin email updated successfully to {new_email}.")
+            return redirect(url_for("admin.dashboard"))
+
+    return render_template("admin/verify_change_email.html", new_email=new_email)

@@ -1,3 +1,8 @@
+# app.py
+
+# app.py ke top par:
+from admin import admin_bp, load_partners
+
 import os
 import secrets
 
@@ -110,6 +115,7 @@ def index():
         services=SERVICES,
         categories=CATEGORIES,
         brands=BRANDS,
+        partners=load_partners(),
         active_page="home",
     )
 
